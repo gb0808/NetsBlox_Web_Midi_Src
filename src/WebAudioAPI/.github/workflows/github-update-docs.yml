@@ -1,0 +1,43 @@
+name: WebAudioAPI Library Update Action
+
+# Build documentation whenever there are new commits on main
+on:
+  workflow_dispatch:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+# Restrict permissions for CI jobs
+permissions:
+  contents: read
+
+# Build documentation and upload the static HTML files as an artifact
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm install && make demos && make assets && make docs
+      - run: mv build/lib build/demos/ && mv -f build/docs/* build/demos/
+      - run: tar --directory build/demos/ -hcf artifact.tar .
+      - uses: actions/upload-artifact@v3
+        with:
+          name: github-pages
+          path: ./artifact.tar
+          retention-days: 1
+
+  # Deploy the artifact to GitHub pages
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v1

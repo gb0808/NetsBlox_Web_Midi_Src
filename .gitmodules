@@ -1,0 +1,3 @@
+[submodule "WebAudioAPI"]
+	path = WebAudioAPI
+	url = https://github.com/hedgecrw/WebAudioAPI.git

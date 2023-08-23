@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>Live Audio Analysis Demo</title>
+    <link rel="stylesheet" href="analysisdemo.css">
+    <script type="module" src="js/webAudioAPI.js"></script>
+    <script src="js/analysisdemo.js"></script>
+  </head>
+
+  <body>
+
+    <div class="center">
+      Status:&nbsp;<span id="status">Not Ready</span>
+    </div>
+
+    <div class="center">
+      <label for="instrument">Instrument:&nbsp;</label>
+      <select name="instrument" id="instrument" onchange="changeInstrument()"></select>
+    </div>
+
+    <div class="center">
+      <label for="device">MIDI Device:&nbsp;</label>
+      <select name="device" id="device" onchange="changeMidiDevice()"></select>
+    </div>
+
+    <p>&nbsp;</p>
+
+    <div class="center">
+      <div class="analysis">
+        Live Oscilloscope
+        <canvas id="waveform" height="150" width="600"></canvas>
+      </div>
+    </div>
+
+    <div class="center">
+      <div class="analysis">
+        Fun Visualization
+        <canvas id="winamp" height="400" width="400"></canvas>
+      </div>
+    </div>
+
+    <div class="center">
+      <div class="analysis">
+        Power Spectrum
+        <canvas id="spectrum" height="255" width="600"></canvas>
+      </div>
+    </div>
+
+    <div class="center">
+      <div class="analysis">
+        Total Power
+        <canvas id="power" height="200" width="300"></canvas>
+      </div>
+    </div>
+
+  </body>
+
+</html>
