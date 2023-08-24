@@ -4215,6 +4215,8 @@
       const I32_MAX = 2147483647;
 
       const audioAPI = new WebAudioAPI();
+      const midiNoteDurations = audioAPI.getAvailableNoteDurations();
+      const midiNotes = audioAPI.getAvailableNotes();
       audioAPI.createTrack('defaultTrack');
       audioAPI.getAvailableMidiDevices().then(returnMidiDevice, fail);
       audioAPI.getAvailableAudioInputDevices().then(returnAudioDevice, fail);
@@ -4341,6 +4343,7 @@
                   new Extension.Palette.Block('stopRecording'),
                   new Extension.Palette.Block('exportAudio'),
                   new Extension.Palette.Block('convertToSnap'),
+                  new Extension.Palette.Block('playMidiNote'),
               ];
               return [
                   new Extension.PaletteCategory('midi', blocks, SpriteMorph),
@@ -4370,6 +4373,11 @@
                       return audioAPI.recordAudioClip(
                           'defaultTrack', audioAPI.getCurrentTime(), time
                       );
+                  }),
+                  block('playMidiNote', 'command', 'midi', 'play %midiNotes note %midiNoteDurations duration', ['', ''], function (note, duration){
+                      this.runAsyncFn(async () => {
+                          await audioAPI.playNote('defaultTrack',note, audioAPI.getCurrentTime(), duration);
+                      }, { args: [], timeout: I32_MAX });
                   }),
                   block('setMidiDevice', 'command', 'midi', 'midi device: %webMidiDevice', [''], function(device) {
                       midiConnect(device);
@@ -4440,6 +4448,18 @@
                       false, //numeric
                       identityMap(audioDevices),
                       true, // readonly (no arbitrary text)
+                  )),
+                  new Extension.LabelPart('midiNotes', () => new InputSlotMorph(
+                      null, //text
+                      false, //numeric
+                      identityMap(Object.keys(midiNotes)),
+                      true, //readonly (no arbitrary text)
+                  )),
+                  new Extension.LabelPart('midiNoteDurations', () => new InputSlotMorph(
+                      null, //text
+                      false, //numeric
+                      identityMap(Object.keys(midiNoteDurations)),
+                      true, //readonly (no arbitrary text)
                   )),
               ];
           }

@@ -14,6 +14,8 @@ import {WebAudioAPI} from "./WebAudioAPI/build/lib/webAudioAPI";
     const I32_MAX = 2147483647;
 
     const audioAPI = new WebAudioAPI();
+    const midiNoteDurations = audioAPI.getAvailableNoteDurations();
+    const midiNotes = audioAPI.getAvailableNotes();
     audioAPI.createTrack('defaultTrack');
     audioAPI.getAvailableMidiDevices().then(returnMidiDevice, fail);
     audioAPI.getAvailableAudioInputDevices().then(returnAudioDevice, fail);
@@ -171,10 +173,10 @@ import {WebAudioAPI} from "./WebAudioAPI/build/lib/webAudioAPI";
                         'defaultTrack', audioAPI.getCurrentTime(), time
                     );
                 }),
-                block('playMidiNote', 'command', 'midi', 'play note', [], function (){
-                    this.runAsyncFn(async() => {
-                        await audioAPI.playNote('defaultTrack',)
-                    })
+                block('playMidiNote', 'command', 'midi', 'play %midiNotes note %midiNoteDurations duration', ['', ''], function (note, duration){
+                    this.runAsyncFn(async () => {
+                        await audioAPI.playNote('defaultTrack', note, audioAPI.getCurrentTime(), duration);
+                    }, { args: [], timeout: I32_MAX });
                 }),
                 block('setMidiDevice', 'command', 'midi', 'midi device: %webMidiDevice', [''], function(device) {
                     midiConnect(device);
@@ -245,6 +247,18 @@ import {WebAudioAPI} from "./WebAudioAPI/build/lib/webAudioAPI";
                     false, //numeric
                     identityMap(audioDevices),
                     true, // readonly (no arbitrary text)
+                )),
+                new Extension.LabelPart('midiNotes', () => new InputSlotMorph(
+                    null, //text
+                    false, //numeric
+                    identityMap(Object.keys(midiNotes)),
+                    true, //readonly (no arbitrary text)
+                )),
+                new Extension.LabelPart('midiNoteDurations', () => new InputSlotMorph(
+                    null, //text
+                    false, //numeric
+                    identityMap(Object.keys(midiNoteDurations)),
+                    true, //readonly (no arbitrary text)
                 )),
             ];
         }

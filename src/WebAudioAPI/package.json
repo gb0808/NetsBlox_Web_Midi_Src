@@ -29,6 +29,7 @@
       "build": "rollup -c"
    },
    "dependencies": {
+      "eslint": "^8.47.0",
       "fflate": "^0.8.0"
    }
 }
