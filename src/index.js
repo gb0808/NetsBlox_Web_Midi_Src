@@ -140,6 +140,7 @@ import {WebAudioAPI} from "./WebAudioAPI/build/lib/webAudioAPI";
                 new Extension.Palette.Block('stopRecording'),
                 new Extension.Palette.Block('exportAudio'),
                 new Extension.Palette.Block('convertToSnap'),
+                new Extension.Palette.Block('playMidiNote'),
             ];
             return [
                 new Extension.PaletteCategory('midi', blocks, SpriteMorph),
@@ -169,6 +170,11 @@ import {WebAudioAPI} from "./WebAudioAPI/build/lib/webAudioAPI";
                     return audioAPI.recordAudioClip(
                         'defaultTrack', audioAPI.getCurrentTime(), time
                     );
+                }),
+                block('playMidiNote', 'command', 'midi', 'play note', [], function (){
+                    this.runAsyncFn(async() => {
+                        await audioAPI.playNote('defaultTrack',)
+                    })
                 }),
                 block('setMidiDevice', 'command', 'midi', 'midi device: %webMidiDevice', [''], function(device) {
                     midiConnect(device);
