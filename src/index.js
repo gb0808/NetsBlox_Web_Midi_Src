@@ -2,29 +2,48 @@ import {WebAudioAPI} from "./WebAudioAPI/build/lib/webAudioAPI";
 
 (function () {
 
+    /**
+     * Object representing a mapping between an encoding file type and its unique internal code.
+     * @constant {Object.<string, number>}
+     */
+    const EncodingType = {
+        WAV: 1
+    };
+
     let midiDevices = [], midiInstruments = [], audioDevices = [];
     const I32_MAX = 2147483647;
 
-    audioAPI = new WebAudioAPI();
+    const audioAPI = new WebAudioAPI();
     audioAPI.createTrack('defaultTrack');
     audioAPI.getAvailableMidiDevices().then(returnMidiDevice, fail);
     audioAPI.getAvailableAudioInputDevices().then(returnAudioDevice, fail);
-    audioAPI.getAvailableInstruments('WebAudioAPI/assets/instruments').then(
+    audioAPI.getAvailableInstruments('http://localhost:8000/extensions/WebMidi/instruments').then(
         instruments => instruments.forEach(
             instrument => midiInstruments.push(instrument)
         )
     );
 
+    /**
+     * Creates a list of all available MIDI devices
+     * @param {[String]} devices - available MIDI device.
+     */
     function returnMidiDevice(devices) {
         midiDevices = devices;
         console.log(devices);
     }
 
+    /**
+     * Creates a list of all available audio-input devices
+     * @param {[String]} devices - available audio-input devices.
+     */
     function returnAudioDevice(devices) {
         audioDevices = devices;
         console.log(devices);
     }
 
+    /**
+     * Runs when the audio API can't return a list of available devices.
+     */
     function fail() {
         console.log('something went wrong');
     }
@@ -63,7 +82,6 @@ import {WebAudioAPI} from "./WebAudioAPI/build/lib/webAudioAPI";
         audioAPI.updateInstrument('defaultTrack', instrument).then(() => {
             console.log('Instrument loading complete!');
         });
-        instrumentName = instrument;
     }
 
     /**
@@ -86,7 +104,7 @@ import {WebAudioAPI} from "./WebAudioAPI/build/lib/webAudioAPI";
      * @returns A Snap! Sound.
      */
     async function clipToSnap(clip) {
-        const blob = clip.getEncodedData(EncodingType['WAV']);
+        const blob = await clip.getEncodedData(EncodingType['WAV']);
         const audio = new Audio(URL.createObjectURL(blob, { type: "audio/wav" }));
         return new Sound(audio, 'netsblox-sound');
     }
@@ -111,6 +129,8 @@ import {WebAudioAPI} from "./WebAudioAPI/build/lib/webAudioAPI";
         getPalette() {
             const blocks = [
                 new Extension.Palette.Block('setAudioDevice'),
+                new Extension.Palette.Block('startRecordingAudio'),
+                new Extension.Palette.Block('recordForDurationAudio'),
                 new Extension.Palette.Block('setMidiDevice'),
                 new Extension.Palette.Block('setInstrument'),
                 new Extension.Palette.Block('startRecording'),
@@ -130,8 +150,18 @@ import {WebAudioAPI} from "./WebAudioAPI/build/lib/webAudioAPI";
                 return new Extension.Block(name, type, category, spec, defaults, action).for(SpriteMorph, StageMorph);
             }
             return [
-                block('setAudioDevice', 'command', 'midi', 'audio device: %audioDevice', [''], function (device) {
+                block('setAudioDevice', 'command', 'music', 'audio device: %audioDevice', [''], function (device) {
                     audioConnect(device);
+                }),
+                block('startRecordingAudio', 'reporter', 'music', 'start recording audio', [], function () {
+                    return audioAPI.recordAudioClip(
+                        'defaultTrack', audioAPI.getCurrentTime()
+                    );
+                }),
+                block('recordForDurationAudio', 'reporter', 'music', 'record audio for %n seconds', [0], function (time) {
+                    return audioAPI.recordAudioClip(
+                        'defaultTrack', audioAPI.getCurrentTime(), time
+                    );
                 }),
                 block('setMidiDevice', 'command', 'midi', 'midi device: %webMidiDevice', [''], function(device) {
                     midiConnect(device);
