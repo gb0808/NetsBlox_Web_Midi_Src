@@ -175,7 +175,7 @@ import {WebAudioAPI} from "./WebAudioAPI/build/lib/webAudioAPI";
                 }),
                 block('playMidiNote', 'command', 'midi', 'play %midiNotes note %midiNoteDurations duration', ['', ''], function (note, duration){
                     this.runAsyncFn(async () => {
-                        await audioAPI.playNote('defaultTrack', note, audioAPI.getCurrentTime(), duration);
+                        await audioAPI.playNote('defaultTrack',midiNotes[note], audioAPI.getCurrentTime(), midiNoteDurations[duration]);
                     }, { args: [], timeout: I32_MAX });
                 }),
                 block('setMidiDevice', 'command', 'midi', 'midi device: %webMidiDevice', [''], function(device) {
